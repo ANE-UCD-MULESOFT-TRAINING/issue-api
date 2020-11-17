@@ -1,0 +1,84 @@
+#%RAML 1.0 DataType
+
+additionalProperties: false
+properties:
+  policyNumber: string
+  result: 
+    properties:
+      status: string
+      policy:
+        properties:
+          vehicles:
+            type: array
+            items: 
+              properties:
+                year: string
+                make: number
+                model: number
+                vehicleOwned: string
+                vehicleUsage: string
+                daysDriven: string
+                milesDriven: string
+                vehiclePrimaryUse: string
+                annualMileage: string
+                id: string
+          drivers:
+            type: array
+            items: 
+              properties:
+                name: string
+                gender: string
+                maritalStatus: string
+                employmentStatus: string
+                currentIns: string
+                education: string
+                licenseNum: string
+                id: string
+          customer:
+            type: array
+            items: 
+              properties:
+                firstName: string
+                lastName: string
+                dob: string
+                stAddress: string
+                apt: string
+                zip: string
+                id: string
+          coverages:
+            type: array
+            items: 
+              properties:
+                bi: string
+                pd: string
+                med: string
+                comp: string
+                col: string
+                rerim: string
+                premium: string
+                id: string
+          policyNumber: string
+          issue-info:
+            properties: 
+                accountNum:
+                  type: string
+                  displayName: Account Number
+                bankName:
+                  type: string
+                  displayName: Name of the Bank
+                confirmContactNum:
+                  type: string
+                  displayName: Contact Number Confirmation
+                confirmEmail:
+                  type: string
+                  displayName: Email Confirmation
+                policyNumber:
+                  type: string
+                  displayName: Policy Number
+                quoteId:
+                  type: string
+                  displayName: Quote Id
+                id?:
+                  type: string
+                  displayName: Policy Id
+                        
