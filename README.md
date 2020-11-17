@@ -5,16 +5,12 @@
 It is a quick reference guide to understand usages of key components & capabilities in Mule that developer/analyst may require during interface design and build phase. It also contains details and references to help kick start initial set-up for development, deployment and test of Mule interfaces as well as references to standard recommendations.
 
 ## Use Case:
-This example demonstrates creating a Rate API for NEION App Use Case, which is used to collect and update coverages information, invokes underwriting before rate and returns response accordingly. Using this API, along with the above mentioned features we will be able to secure user to only fetch/update coverages they are part of. In order to process these requests, the use case uses Mule to invoke HTTP requests to system API's and other sources to fetch the details
+This example demonstrates creating a Issue API for NEION App Use Case, which is used to collect and update policy information, gets data from multiple collections in mongoDB. Create a single JSON structure with the policy object. Assign a generated policy number which is 13 digits. Then make a API call to publish to Kafka . In order to process these requests, the use case uses Mule to invoke HTTP requests to system API's, connection to MongoDB and other sources to fetch the details
 
 At the end of this course, students should be able to:
-•	Describe the benefits of application networks and API-led connectivity.
-•	Use Anypoint Exchange as a central repository for the discovery and reuse of assets. 
+•	Use Anypoint Studio to create Mule APIs.
 •	Use Flow Designer to build integration apps that consume APIs from Exchange and transform data.
-•	Use API Designer to define APIs with RAML and make them discoverable by adding them to Exchange. 
 •	Use Anypoint Studio to build APIs that connect to databases and transform data with Data Weave. 
-•	Deploy API implementations to Cloud Hub. 
-•	Use API Manager to create and deploy API proxies that govern access to APIs.
 
 
 ## Prerequisties
@@ -43,7 +39,7 @@ At the end of this course, students should be able to:
 
 https://docs.mulesoft.com/anypoint-platform-administration/creating-an-account
 
-##  RATE API Spec Design
+##  Issue API Spec Design
 
 The code is located in the file `src/main/mule/business-logic.xml` in the project.
 
@@ -96,4 +92,6 @@ The code is located in the file `src/main/mule/business-logic.xml` in the projec
 
 In this tutorial, we've seen:
 
-* How to create Issue API Spec  etc.
+* How to create Issue API.
+* Connect to MongoDB
+* Make HTTP Calls to other APIs
