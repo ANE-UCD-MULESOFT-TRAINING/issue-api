@@ -4,10 +4,7 @@
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
     <apikit:config name="issue-api-config" api="issue-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-    <http:listener-config name="Console_listener_config" doc:name="HTTP Listener config" doc:id="ddeced80-ddd3-43a5-8171-e3f382492d6f" >
-		<http:listener-connection host="0.0.0.0" port="8082" />
-	</http:listener-config>
-	<flow name="issue-api-main">
+    <flow name="issue-api-main">
         <http:listener config-ref="issue-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
@@ -100,13 +97,13 @@ output application/json
         </error-handler>
     </flow>
     <flow name="issue-api-console">
-        <http:listener config-ref="Console_listener_config" path="/console/*">
+        <http:listener config-ref="issue-api-httpListenerConfig" path="/console/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
-                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
             </http:response>
             <http:error-response statusCode="#[vars.httpStatus default 500]">
-                <http:body><![CDATA[#[payload]]]></http:body>
-                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
             </http:error-response>
         </http:listener>
         <apikit:console config-ref="issue-api-config" />
@@ -126,6 +123,14 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
+    <flow name="get:\api\issue\(quoteId):issue-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+            <ee:variables>
+                <ee:set-variable variableName="quoteId">attributes.uriParams.'quoteId'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <logger level="INFO" message="get:\api\issue\(quoteId):issue-api-config" />
+    </flow>
     <flow name="get:\health:issue-api-config">
         <logger level="INFO" message="get:\health:issue-api-config" />
     </flow>
@@ -136,13 +141,13 @@ output application/json
         <logger level="INFO" message="get:\ready:issue-api-config" />
     </flow>
     <flow name="post:\api\issue\(quoteId):application\json:issue-api-config">
-        <set-variable value="#[payload]" doc:name="Set Variable" doc:id="871baef1-2677-447a-b56b-61a21658f4ce" variableName="issueInfo"/>
 		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
                 <ee:set-variable variableName="quoteId">attributes.uriParams.'quoteId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
-        <flow-ref doc:name="Flow Reference" doc:id="674ac18e-7e9e-4b32-a6ad-0f2f519653db" name="policy-sub-flow"/>
+        <set-variable value="#[payload]" doc:name="Set Variable" doc:id="81519e27-6933-431c-9a25-78963068bbfd" variableName="issueInfo"/>
 		<logger level="INFO" message="post:\api\issue\(quoteId):application\json:issue-api-config" />
+		<flow-ref doc:name="Flow Reference" doc:id="9191097c-ea6b-41d2-9120-c17a997df5a6" name="policy-api-implementationSub_Flow1"/>
     </flow>
 </mule>

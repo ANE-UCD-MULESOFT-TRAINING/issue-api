@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:mongo="http://www.mulesoft.org/schema/mule/mongo"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/mongo http://www.mulesoft.org/schema/mule/mongo/current/mule-mongo.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<mongo:config name="MongoDB_Config" doc:name="MongoDB Config" doc:id="a7cd414d-7c83-4261-8409-263d1a295a5f" >
+		<mongo:connection-string-connection connectionString="mongodb://lrqi_db:lrqi_db_pwd@lrqidb-shard-00-00-wksjy.mongodb.net:27017,lrqidb-shard-00-01-wksjy.mongodb.net:27017,lrqidb-shard-00-02-wksjy.mongodb.net:27017/lrqi?authSource=admin&amp;replicaSet=LRQIDB-shard-0&amp;readPreference=primary&amp;retryWrites=true&amp;ssl=true" />
+	</mongo:config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="db875ce8-a808-4156-b0ce-1a67b81d7f42" >
+		<http:request-connection host="istio-ingressgateway-istio-system.apps.awsopenshift.ne-innovation.com" port="80" />
+	</http:request-config>
+	<sub-flow name="policy-api-implementationSub_Flow1" doc:id="77d5bba6-5962-4a3b-8bad-6f0130bde533" >
+		<scatter-gather doc:name="Scatter-Gather" doc:id="7a9994fb-9580-4ba0-9b84-f70d86d38165" >
+			<route >
+				<set-variable value='#[output application/json
+---
+{
+	searchParam : {
+		quoteId: vars.quoteId
+	},
+	collectionName: "col_lrqi_drivers"
+}]' doc:name="Set Variable" doc:id="28b868e6-a899-413e-9cea-5e5d6093a12d" variableName="query"/>
+				<flow-ref doc:name="Flow Reference" doc:id="ea592bf6-be81-4431-93c3-8868c3493e03" name="policy-api-implementationSub_Flow"/>
+			</route>
+			<route >
+				<set-variable value='#[output application/json
+---
+{
+	searchParam : {
+		quoteId: vars.quoteId
+	},
+	collectionName: "col_lrqi_vehicles"
+}]' doc:name="Set Variable" doc:id="bdfd786f-65d7-4daf-a5f0-3373c5288547" variableName="query" />
+				<flow-ref doc:name="Flow Reference" doc:id="8cabb392-e508-4b63-8fdc-29b58f411f16" name="policy-api-implementationSub_Flow" />
+			</route>
+			<route >
+				<set-variable value='#[output application/json
+---
+{
+	searchParam : {
+		quoteId: vars.quoteId
+	},
+	collectionName: "col_lrqi_customers"
+}]' doc:name="Set Variable" doc:id="26f493fe-097c-4292-8c67-0a659cb4e0a4" variableName="query" />
+				<flow-ref doc:name="Flow Reference" doc:id="cd35576d-2206-43a6-b00c-eff8c6ebce07" name="policy-api-implementationSub_Flow" />
+			</route>
+			<route >
+				<set-variable value='#[output application/json
+---
+{
+	searchParam : {
+		quoteId: vars.quoteId
+	},
+	collectionName: "col_lrqi_rate_issue"
+}]' doc:name="Set Variable" doc:id="5262ddcc-a0cd-487b-a227-881a7708e0c7" variableName="query" />
+				<flow-ref doc:name="Flow Reference" doc:id="e1259980-741d-46a7-9dff-2f92aa8f95a8" name="policy-api-implementationSub_Flow" />
+			</route>
+			<route >
+				<set-variable value='#[output application/json
+---
+{
+	searchParam : {
+		quoteId: vars.quoteId
+	},
+	collectionName: "col_lrqi_incidents"
+}]' doc:name="Set Variable" doc:id="316a8653-e16e-4b22-a894-db13705fe650" variableName="query" />
+				<flow-ref doc:name="Flow Reference" doc:id="5589fcf4-3c59-4620-9c6f-043fed9c3f3d" name="policy-api-implementationSub_Flow" />
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Transform Message" doc:id="5343f3ff-ca25-465a-8df9-810cd198db65" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[output application/json
+---
+{
+	drivers : [payload[0].payload],
+	vehicles: [payload[1].payload],
+	customer: payload[2].payload,
+	coverages:[payload[3].payload],
+	incidents : [payload[4].payload],
+	"issue-info": vars.issueInfo,
+	policyNumber : (random() * 10000000000000) as String {format: "0"}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<async doc:name="Async" doc:id="29c9b0b8-617f-46f8-b6df-c9c8908634ea" >
+			<http:request method="POST" doc:name="Request" doc:id="162b94bf-a5af-4155-86c1-8f6bf1c6319c" config-ref="HTTP_Request_configuration" path="/policy/publish"/>
+		</async>
+	</sub-flow>
+	<sub-flow name="policy-api-implementationSub_Flow" doc:id="0f86520d-5544-4549-8399-3463a4657945" >
+		<mongo:find-one-document collectionName="#[vars.query.collectionName]" doc:name="Find one document" doc:id="397c6398-d700-40ea-b154-6c423bc5a7c8" config-ref="MongoDB_Config" failOnNotFound="false" returnId="false">
+			<mongo:find-query ><![CDATA[#[vars.query.searchParam]]]></mongo:find-query>
+		</mongo:find-one-document>
+		<set-payload value="#[output application/json
+---
+payload]" doc:name="Set Payload" doc:id="22058044-26e2-41ab-8af2-4aff03546168" />
+	</sub-flow>
+</mule>
