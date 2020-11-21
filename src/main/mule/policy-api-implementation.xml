@@ -87,7 +87,7 @@ http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/htt
 		</ee:transform>
 		<flow-ref doc:name="Flow Reference" doc:id="ca2152c8-c22d-476f-af11-5c149c958412" name="save_policy_data_subflow"/>
 		<async doc:name="Async" doc:id="29c9b0b8-617f-46f8-b6df-c9c8908634ea" >
-			<http:request method="POST" doc:name="Request" doc:id="162b94bf-a5af-4155-86c1-8f6bf1c6319c" config-ref="HTTP_Request_configuration" path="/policy/publish">
+			<http:request method="POST" doc:name="Request" doc:id="162b94bf-a5af-4155-86c1-8f6bf1c6319c" config-ref="HTTP_Request_configuration" path="/policy/publish" target="aysncResponse">
 				<http:headers ><![CDATA[#[output application/java
 ---
 {
@@ -113,7 +113,7 @@ payload]" doc:name="Set Payload" doc:id="22058044-26e2-41ab-8af2-4aff03546168" /
 				<mongo:create-collection doc:name="Create collection" doc:id="538a98ed-66a5-40ac-9d0b-89bf8ff9e775" config-ref="MongoDB_Config" collectionName="policy_data"/>
 			</when>
 		</choice>
-		<mongo:insert-document collectionName="policy_data" doc:name="Insert document" doc:id="fd31bc01-6eb1-403d-a28d-2ccedc648d4c" config-ref="MongoDB_Config"/>
+		<mongo:insert-document collectionName="policy_data" doc:name="Insert document" doc:id="fd31bc01-6eb1-403d-a28d-2ccedc648d4c" config-ref="MongoDB_Config" target="response"/>
 	</sub-flow>
 	<sub-flow name="get-policy-subFlow" doc:id="48fe8729-2be7-48cc-98a8-4a4095304ab6" >
 		<set-variable value='#[output application/json
