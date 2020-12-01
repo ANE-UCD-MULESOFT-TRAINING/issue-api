@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd ">
+<mule xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/api-gateway http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
     <http:listener-config name="issue-api-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
     <apikit:config name="issue-api-config" api="issue-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-    <flow name="issue-api-main">
+	<flow name="issue-api-main">
         <http:listener config-ref="issue-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
                 <http:headers>#[vars.outboundHeaders default {}]</http:headers>
@@ -123,14 +124,14 @@ output application/json
             </on-error-propagate>
         </error-handler>
     </flow>
-    <flow name="get:\api\issue\(quoteId):issue-api-config">
+    <flow name="get:\issue\(quoteId):issue-api-config">
         <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
                 <ee:set-variable variableName="quoteId">attributes.uriParams.'quoteId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
         <logger level="INFO" message="get:\api\issue\(quoteId):issue-api-config" />
-		<flow-ref doc:name="Flow Reference" doc:id="84dbadb9-bde9-445d-846e-7c3a4a1b489c" name="get-policy-subFlow"/>
+        <flow-ref doc:name="Flow Reference" doc:id="84dbadb9-bde9-445d-846e-7c3a4a1b489c" name="get-policy-subFlow" />
     </flow>
     <flow name="get:\health:issue-api-config">
         <logger level="INFO" message="get:\health:issue-api-config" />
@@ -141,14 +142,14 @@ output application/json
     <flow name="get:\ready:issue-api-config">
         <logger level="INFO" message="get:\ready:issue-api-config" />
     </flow>
-    <flow name="post:\api\issue\(quoteId):application\json:issue-api-config">
-		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
+    <flow name="post:\issue\(quoteId):application\json:issue-api-config">
+        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core">
             <ee:variables>
                 <ee:set-variable variableName="quoteId">attributes.uriParams.'quoteId'</ee:set-variable>
             </ee:variables>
         </ee:transform>
-        <set-variable value="#[payload]" doc:name="Set Variable" doc:id="81519e27-6933-431c-9a25-78963068bbfd" variableName="issueInfo"/>
-		<logger level="INFO" message="post:\api\issue\(quoteId):application\json:issue-api-config" />
-		<flow-ref doc:name="Flow Reference" doc:id="9191097c-ea6b-41d2-9120-c17a997df5a6" name="policy-api-implementationSub_Flow1"/>
+        <set-variable value="#[payload]" doc:name="Set Variable" doc:id="81519e27-6933-431c-9a25-78963068bbfd" variableName="issueInfo" />
+        <logger level="INFO" message="post:\api\issue\(quoteId):application\json:issue-api-config" />
+        <flow-ref doc:name="Flow Reference" doc:id="9191097c-ea6b-41d2-9120-c17a997df5a6" name="policy-api-implementationSub_Flow1" />
     </flow>
 </mule>
