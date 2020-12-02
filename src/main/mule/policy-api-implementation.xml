@@ -91,7 +91,7 @@ http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/sc
 		</ee:transform>
 		<flow-ref doc:name="Flow Reference" doc:id="ca2152c8-c22d-476f-af11-5c149c958412" name="save_policy_data_subflow"/>
 		<try doc:name="Try" doc:id="731e49c4-420d-458c-842d-083762b235f2" >
-			<flow-ref doc:name="Flow Reference" doc:id="df2ac400-e86c-41e7-8dd1-caf3fdb31c93" name="policy-api-publishSub_Flow" />
+			<flow-ref doc:name="Flow Reference" doc:id="df2ac400-e86c-41e7-8dd1-caf3fdb31c93" name="policy-api-publishSub_Flow" target="publish"/>
 			<error-handler >
 				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d2b0cd11-7486-4360-ab0e-65742ad6553e" type="ANY">
 					<ee:transform doc:name="Transform Message" doc:id="dfbb28a8-8c7d-4e04-81e8-dbf57fa2abf2" >
@@ -111,7 +111,7 @@ output application/json
 	</sub-flow>
 	<sub-flow name="policy-api-publishSub_Flow" doc:id="86e57062-d56a-49cb-9cfb-ed850395a226" >
 		<try doc:name="Try" doc:id="b698ee56-981e-4e2a-8b19-c8c6e7435851" >
-			<http:request method="POST" doc:name="Request" doc:id="587ca6b3-c466-45cc-926f-dca0a211363c" config-ref="HTTP_Request_configuration" path="/policy/publish" />
+			<http:request method="POST" doc:name="Request" doc:id="587ca6b3-c466-45cc-926f-dca0a211363c" config-ref="HTTP_Request_configuration" path="/policy/publish" target="publish"/>
 			<error-handler >
 				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f2c4ad66-0404-47e7-80a9-7b7f77f85116" type="ANY">
 					<ee:transform doc:name="Transform Message" doc:id="41d8a576-1b35-4941-af7a-4653f2f2e135" >
