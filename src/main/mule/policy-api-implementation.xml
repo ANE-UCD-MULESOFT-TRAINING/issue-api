@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:mongo="http://www.mulesoft.org/schema/mule/mongo"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:mongo="http://www.mulesoft.org/schema/mule/mongo" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/mongo http://www.mulesoft.org/schema/mule/mongo/current/mule-mongo.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 	<mongo:config name="MongoDB_Config" doc:name="MongoDB Config" doc:id="a7cd414d-7c83-4261-8409-263d1a295a5f" >
-		<mongo:connection-string-connection connectionString="mongodb://lrqi_db:lrqi_db_pwd@lrqidb-shard-00-00-wksjy.mongodb.net:27017,lrqidb-shard-00-01-wksjy.mongodb.net:27017,lrqidb-shard-00-02-wksjy.mongodb.net:27017/lrqi?authSource=admin&amp;replicaSet=LRQIDB-shard-0&amp;readPreference=primary&amp;retryWrites=true&amp;ssl=true" />
+		<mongo:connection-string-connection connectionString="${secure::mongo.connString}" />
 	</mongo:config>
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="db875ce8-a808-4156-b0ce-1a67b81d7f42" >
 		<http:request-connection host="istio-ingressgateway-istio-system.apps.awsopenshift.ne-innovation.com" port="80" />
 	</http:request-config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="cddd9f27-edb9-4335-b56b-b754efd9201d" file="config/${env}.yaml" key="${key}"/>
+	<configuration-properties doc:name="Configuration properties" doc:id="ac923dd7-c8bc-4f58-b5a3-aadc1d509906" file="config/${env}.yaml" />
+	<global-property doc:name="Global Property" doc:id="77e3d9ba-e80b-4deb-8bbc-dc4bf123267e" name="env" value="local" />
 	<sub-flow name="policy-api-implementationSub_Flow1" doc:id="77d5bba6-5962-4a3b-8bad-6f0130bde533" >
 		<scatter-gather doc:name="Scatter-Gather" doc:id="7a9994fb-9580-4ba0-9b84-f70d86d38165" >
 			<route >
@@ -116,6 +120,12 @@ payload]" doc:name="Set Payload" doc:id="22058044-26e2-41ab-8af2-4aff03546168" /
 		<mongo:insert-document collectionName="policy_data" doc:name="Insert document" doc:id="fd31bc01-6eb1-403d-a28d-2ccedc648d4c" config-ref="MongoDB_Config" target="response"/>
 	</sub-flow>
 	<sub-flow name="get-policy-subFlow" doc:id="48fe8729-2be7-48cc-98a8-4a4095304ab6" >
+		<logger level="INFO" doc:name="Logger" doc:id="617caed4-5a56-487e-a768-b356440cdc2e" message="#[%dw 2.0
+
+output application/java
+
+---
+p('secure::mongo.connString')]"/>
 		<set-variable value='#[output application/json
 ---
 {
