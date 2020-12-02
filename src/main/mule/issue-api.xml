@@ -6,6 +6,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
         <http:listener-connection host="0.0.0.0" port="8081" />
     </http:listener-config>
     <apikit:config name="issue-api-config" api="issue-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+	<api-gateway:autodiscovery apiId="16504460" ignoreBasePath="true" doc:name="API Autodiscovery" doc:id="b6f98bd0-40bd-4bea-9969-a7f1f36fae5c" flowRef="issue-api-main" />
 	<flow name="issue-api-main">
         <http:listener config-ref="issue-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
