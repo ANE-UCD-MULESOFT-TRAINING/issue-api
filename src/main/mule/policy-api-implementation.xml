@@ -90,34 +90,97 @@ http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/sc
 			</ee:message>
 		</ee:transform>
 		<flow-ref doc:name="Flow Reference" doc:id="ca2152c8-c22d-476f-af11-5c149c958412" name="save_policy_data_subflow"/>
-		<async doc:name="Async" doc:id="29c9b0b8-617f-46f8-b6df-c9c8908634ea" >
-			<http:request method="POST" doc:name="Request" doc:id="162b94bf-a5af-4155-86c1-8f6bf1c6319c" config-ref="HTTP_Request_configuration" path="/policy/publish" target="aysncResponse">
-				<http:headers ><![CDATA[#[output application/java
+		<try doc:name="Try" doc:id="731e49c4-420d-458c-842d-083762b235f2" >
+			<flow-ref doc:name="Flow Reference" doc:id="df2ac400-e86c-41e7-8dd1-caf3fdb31c93" name="policy-api-publishSub_Flow" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d2b0cd11-7486-4360-ab0e-65742ad6553e" type="ANY">
+					<ee:transform doc:name="Transform Message" doc:id="dfbb28a8-8c7d-4e04-81e8-dbf57fa2abf2" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
 ---
 {
-	"Content-Type" : "application/json"
-}]]]></http:headers>
-			</http:request>
-		</async>
+    "title": error.description,
+    "detail": error.detailedDescription
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
+	</sub-flow>
+	<sub-flow name="policy-api-publishSub_Flow" doc:id="86e57062-d56a-49cb-9cfb-ed850395a226" >
+		<try doc:name="Try" doc:id="b698ee56-981e-4e2a-8b19-c8c6e7435851" >
+			<http:request method="POST" doc:name="Request" doc:id="587ca6b3-c466-45cc-926f-dca0a211363c" config-ref="HTTP_Request_configuration" path="/policy/publish" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="f2c4ad66-0404-47e7-80a9-7b7f77f85116" type="ANY">
+					<ee:transform doc:name="Transform Message" doc:id="41d8a576-1b35-4941-af7a-4653f2f2e135" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "title": error.description,
+    "detail": error.detailedDescription
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
 	</sub-flow>
 	<sub-flow name="policy-api-implementationSub_Flow" doc:id="0f86520d-5544-4549-8399-3463a4657945" >
-		<mongo:find-one-document collectionName="#[vars.query.collectionName]" doc:name="Find one document" doc:id="397c6398-d700-40ea-b154-6c423bc5a7c8" config-ref="MongoDB_Config" failOnNotFound="false" returnId="false">
-			<mongo:find-query ><![CDATA[#[vars.query.searchParam]]]></mongo:find-query>
+		<try doc:name="Try" doc:id="a0699265-3e88-4e3e-b684-087e8a6911a4" >
+			<mongo:find-one-document collectionName="#[vars.query.collectionName]" doc:name="Find one document" doc:id="397c6398-d700-40ea-b154-6c423bc5a7c8" config-ref="MongoDB_Config" failOnNotFound="false" returnId="false">
+			<mongo:find-query><![CDATA[#[vars.query.searchParam]]]></mongo:find-query>
 		</mongo:find-one-document>
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="66d9bd1a-4fbe-4d5d-ad19-b9ce9c9f5a4d" type="ANY">
+					<ee:transform doc:name="Transform Message" doc:id="af864cc1-87aa-4b19-81f2-ee71d15645c7" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "title": error.description,
+    "detail": error.detailedDescription
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
 		<set-payload value="#[output application/json
 ---
 payload]" doc:name="Set Payload" doc:id="22058044-26e2-41ab-8af2-4aff03546168" />
 	</sub-flow>
 	<sub-flow name="save_policy_data_subflow" doc:id="607afdb7-f382-40b9-8091-c33575e94188" >
-		<mongo:exists-collection doc:name="Exists collection" doc:id="63f257e0-9b8a-4cf2-a98f-5c276e431aba" config-ref="MongoDB_Config" target="policyCollectionExists">
-			<mongo:collection-name ><![CDATA[policy_data]]></mongo:collection-name>
+		<try doc:name="Try" doc:id="11049edd-733c-4700-91db-d85f5a3ee3b1" >
+			<mongo:exists-collection doc:name="Exists collection" doc:id="63f257e0-9b8a-4cf2-a98f-5c276e431aba" config-ref="MongoDB_Config" target="policyCollectionExists">
+			<mongo:collection-name><![CDATA[policy_data]]></mongo:collection-name>
 		</mongo:exists-collection>
-		<choice doc:name="Choice" doc:id="d283374e-aab2-4bd9-a818-98751e8897db" >
+			<choice doc:name="Choice" doc:id="d283374e-aab2-4bd9-a818-98751e8897db">
 			<when expression="#[vars.policyCollectionExists == false]">
-				<mongo:create-collection doc:name="Create collection" doc:id="538a98ed-66a5-40ac-9d0b-89bf8ff9e775" config-ref="MongoDB_Config" collectionName="policy_data"/>
+				<mongo:create-collection doc:name="Create collection" doc:id="538a98ed-66a5-40ac-9d0b-89bf8ff9e775" config-ref="MongoDB_Config" collectionName="policy_data" />
 			</when>
 		</choice>
-		<mongo:insert-document collectionName="policy_data" doc:name="Insert document" doc:id="fd31bc01-6eb1-403d-a28d-2ccedc648d4c" config-ref="MongoDB_Config" target="response"/>
+			<mongo:insert-document collectionName="policy_data" doc:name="Insert document" doc:id="fd31bc01-6eb1-403d-a28d-2ccedc648d4c" config-ref="MongoDB_Config" target="response" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="c6c64a88-259f-4331-a336-473f740532fb" type="ANY">
+					<ee:transform doc:name="Transform Message" doc:id="b8e2f40a-3094-4279-a3d6-a2233f7bb595" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "title": error.description,
+    "detail": error.detailedDescription
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
 	</sub-flow>
 	<sub-flow name="get-policy-subFlow" doc:id="48fe8729-2be7-48cc-98a8-4a4095304ab6" >
 		<logger level="INFO" doc:name="Logger" doc:id="617caed4-5a56-487e-a768-b356440cdc2e" message="#[%dw 2.0
@@ -134,6 +197,23 @@ p('secure::mongo.connString')]"/>
 	},
 	collectionName: "policy_data"
 }]' doc:name="Set Variable" doc:id="bbb466f2-81f4-4af3-9755-55110964ae36" variableName="query" />
-		<flow-ref doc:name="Flow Reference" doc:id="a278c3a5-7f1e-441b-a388-0a9b4a96d3ed" name="policy-api-implementationSub_Flow"/>
+		<try doc:name="Try" doc:id="a94303cc-32f3-450f-be2e-2b11e863e032" >
+			<flow-ref doc:name="Flow Reference" doc:id="a278c3a5-7f1e-441b-a388-0a9b4a96d3ed" name="policy-api-implementationSub_Flow" />
+			<error-handler >
+				<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="d9a767ba-463e-42c8-9d52-c533dde439e2" type="ANY">
+					<ee:transform doc:name="Transform Message" doc:id="5687e73e-edfb-468f-bac4-0a801cdd52b0" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    "title": error.description,
+    "detail": error.detailedDescription
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-propagate>
+			</error-handler>
+		</try>
 	</sub-flow>
 </mule>
