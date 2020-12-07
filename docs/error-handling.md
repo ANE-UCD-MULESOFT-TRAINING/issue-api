@@ -1,5 +1,4 @@
 # Issue -API Error Handling
-## Post Operation Implementation.xml
 
 1. Checkout the issue-api repository from Git <https://github.com/ANE-UCD-MULESOFT-TRAINING/issue-api> and branch 3.configuration. 
   This would get the base code to start the development for this exercise. 
